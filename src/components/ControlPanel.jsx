@@ -2,7 +2,7 @@ import React from 'react';
 import SoundControls from './SoundControls';
 import ColorButton from './ColorButton';
 
-const ControlPanel = ({ colors, selectedColor, onSelectColor, isPlaying, isPaused, playPauseSound, stopSound }) => {
+const ControlPanel = ({ colors, selectedColor, onSelectColor, isPlaying, isPaused, playPauseSound, stopSound, addTrack }) => {
     return (
         <div>
             <div className="color-buttons">
@@ -16,6 +16,7 @@ const ControlPanel = ({ colors, selectedColor, onSelectColor, isPlaying, isPause
                 playPauseSound={playPauseSound}
                 stopSound={stopSound}
             />
+            <button onClick={addTrack}>Add Track</button>
         </div>
     );
 };

@@ -13,8 +13,7 @@ function App() {
     const [selectedMode, setSelectedMode] = useState('Ionisch'); // Default-Auswahl für das Dropdown-Menü
     const [isPlaying, setIsPlaying] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
-    const canvasRef = useRef(null);
-    const [lines, setLines] = useState([]);
+    const [tracks, setTracks] = useState([{ id: 1, ref: useRef(null), lines: [], color: 'red' }]);
 
     const handleColorSelect = (selectedColor) => {
         setColor(selectedColor);
@@ -24,9 +23,9 @@ function App() {
         setSelectedMode(mode);
     };
 
-    const saveDrawing = async (points) => {
+    const saveDrawing = async (points, trackId) => {
         const data = {
-            name: 'My Drawing',
+            name: `My Drawing ${trackId}`,
             points: points
         };
 
@@ -52,50 +51,53 @@ function App() {
             return;
         }
 
-        const synths = {
-            default: new Tone.Synth({
-                oscillator: { type: 'sine' },
-                envelope: {
-                    attack: 0.1,
-                    decay: 0.1,
-                    sustain: 0.8,
-                    release: 0.5
-                }
-            }).toDestination(),
-            green: new Tone.PolySynth(Tone.Synth, {
-                oscillator: { type: 'fatsawtooth' },
-                envelope: {
-                    attack: 0.1,
-                    decay: 0.1,
-                    sustain: 0.8,
-                    release: 0.5
-                }
-            }).toDestination()
-        };
+        tracks.forEach(track => {
+            const { lines, ref } = track;
+            const synths = {
+                default: new Tone.Synth({
+                    oscillator: { type: 'sine' },
+                    envelope: {
+                        attack: 0.1,
+                        decay: 0.1,
+                        sustain: 0.8,
+                        release: 0.5
+                    }
+                }).toDestination(),
+                green: new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: 'fatsawtooth' },
+                    envelope: {
+                        attack: 0.1,
+                        decay: 0.1,
+                        sustain: 0.8,
+                        release: 0.5
+                    }
+                }).toDestination()
+            };
 
-        Tone.Transport.cancel();
+            Tone.Transport.cancel();
 
-        const canvas = canvasRef.current;
-        const height = canvas.height;
-        const width = canvas.width;
-        const totalTime = 30;
-        const minDuration = 0.05;
+            const canvas = ref.current;
+            const height = canvas.height;
+            const width = canvas.width;
+            const totalTime = 30;
+            const minDuration = 0.05;
 
-        lines.flat().forEach((point, index, arr) => {
-            const time = (point.x / width) * totalTime;
-            const freq = 100 + (height - point.y);
-            const nextTime = (index < arr.length - 1) ? (arr[index + 1].x / width) * totalTime : time + 0.5;
-            const duration = Math.max(nextTime - time, minDuration);
+            lines.flat().forEach((point, index, arr) => {
+                const time = (point.x / width) * totalTime;
+                const freq = 100 + (height - point.y);
+                const nextTime = (index < arr.length - 1) ? (arr[index + 1].x / width) * totalTime : time + 0.5;
+                const duration = Math.max(nextTime - time, minDuration);
 
-            const synth = point.color === 'green' ? synths.green : synths.default;
+                const synth = point.color === 'green' ? synths.green : synths.default;
 
-            Tone.Transport.schedule((time) => {
-                synth.triggerAttackRelease(freq, duration, time);
-            }, time);
+                Tone.Transport.schedule((time) => {
+                    synth.triggerAttackRelease(freq, duration, time);
+                }, time);
+            });
         });
 
         Tone.Transport.start();
-        Tone.Transport.stop(`+${totalTime}`);
+        Tone.Transport.stop(`+${30}`);
         setIsPlaying(true);
         setIsPaused(false);
     };
@@ -104,6 +106,17 @@ function App() {
         Tone.Transport.stop();
         setIsPlaying(false);
         setIsPaused(false);
+    };
+
+    const addTrack = () => {
+        const newTrack = { id: tracks.length + 1, ref: useRef(null), lines: [], color: color };
+        setTracks([...tracks, newTrack]);
+    };
+
+    const updateLines = (newLines, trackId) => {
+        setTracks(tracks.map(track =>
+            track.id === trackId ? { ...track, lines: newLines } : track
+        ));
     };
 
     return (
@@ -116,17 +129,21 @@ function App() {
                 isPaused={isPaused}
                 playPauseSound={playPauseSound}
                 stopSound={stopSound}
+                addTrack={addTrack}
             />
             <ModeDropdown selectedMode={selectedMode} onSelectMode={handleModeSelect} />
             <ToggleButton onToggle={(isPlaying) => console.log(isPlaying ? 'Playing' : 'Paused')} />
-            <DrawingCanvas
-                mode={mode}
-                color={color}
-                onSave={saveDrawing}
-                canvasRef={canvasRef}
-                lines={lines}
-                setLines={setLines}
-            />
+            {tracks.map(track => (
+                <DrawingCanvas
+                    key={track.id}
+                    mode={mode}
+                    color={track.color}
+                    onSave={(points) => saveDrawing(points, track.id)}
+                    canvasRef={track.ref}
+                    lines={track.lines}
+                    setLines={(newLines) => updateLines(newLines, track.id)}
+                />
+            ))}
         </div>
     );
 }
