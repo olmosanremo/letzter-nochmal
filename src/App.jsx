@@ -13,7 +13,7 @@ function App() {
     const [selectedMode, setSelectedMode] = useState('Ionisch'); // Default-Auswahl für das Dropdown-Menü
     const [isPlaying, setIsPlaying] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
-    const [tracks, setTracks] = useState([{ id: 1, ref: useRef(null), lines: [], color: 'red' }]);
+    const [tracks, setTracks] = useState([{ id: 1, ref: useRef(null), lines: [] }]);
 
     const handleColorSelect = (selectedColor) => {
         setColor(selectedColor);
@@ -109,7 +109,7 @@ function App() {
     };
 
     const addTrack = () => {
-        const newTrack = { id: tracks.length + 1, ref: useRef(null), lines: [], color: color };
+        const newTrack = { id: tracks.length + 1, ref: useRef(null), lines: [] };
         setTracks([...tracks, newTrack]);
     };
 
@@ -137,7 +137,7 @@ function App() {
                 <DrawingCanvas
                     key={track.id}
                     mode={mode}
-                    color={color} // Aktualisierte Farbe verwenden
+                    color={color} // Verwende die ausgewählte Farbe
                     onSave={(points) => saveDrawing(points, track.id)}
                     canvasRef={track.ref}
                     lines={track.lines}
