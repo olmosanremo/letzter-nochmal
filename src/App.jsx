@@ -137,7 +137,7 @@ function App() {
                 <DrawingCanvas
                     key={track.id}
                     mode={mode}
-                    color={track.color}
+                    color={color} // Aktualisierte Farbe verwenden
                     onSave={(points) => saveDrawing(points, track.id)}
                     canvasRef={track.ref}
                     lines={track.lines}
