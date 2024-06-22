@@ -109,14 +109,16 @@ function App() {
     };
 
     const addTrack = () => {
-        const newTrack = { id: tracks.length + 1, ref: useRef(null), lines: [] };
-        setTracks([...tracks, newTrack]);
+        const newTrack = { id: tracks.length + 1, ref: React.createRef(), lines: [] };
+        setTracks((prevTracks) => [...prevTracks, newTrack]);
     };
 
     const updateLines = (newLines, trackId) => {
-        setTracks(tracks.map(track =>
-            track.id === trackId ? { ...track, lines: newLines } : track
-        ));
+        setTracks((prevTracks) =>
+            prevTracks.map(track =>
+                track.id === trackId ? { ...track, lines: newLines } : track
+            )
+        );
     };
 
     return (
