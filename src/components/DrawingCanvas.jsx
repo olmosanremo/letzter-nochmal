@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getCoordinates, drawSmoothLine } from '../utilities/canvasUtils';
 
-const DrawingCanvas = ({ mode, color, onSave, canvasRef, lines, setLines }) => {
+const DrawingCanvas = ({ mode, color, onSave, canvasRef, lines, setLines, onRemove }) => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [currentLine, setCurrentLine] = useState([]);
 
@@ -70,6 +70,7 @@ const DrawingCanvas = ({ mode, color, onSave, canvasRef, lines, setLines }) => {
                 onTouchMove={draw}
             />
             <button onClick={handleSave}>Save Drawing</button>
+            <button onClick={onRemove}>Remove Track</button>
         </div>
     );
 };

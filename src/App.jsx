@@ -113,6 +113,10 @@ function App() {
         setTracks((prevTracks) => [...prevTracks, newTrack]);
     };
 
+    const removeTrack = (trackId) => {
+        setTracks((prevTracks) => prevTracks.filter(track => track.id !== trackId));
+    };
+
     const updateLines = (newLines, trackId) => {
         setTracks((prevTracks) =>
             prevTracks.map(track =>
@@ -144,6 +148,7 @@ function App() {
                     canvasRef={track.ref}
                     lines={track.lines}
                     setLines={(newLines) => updateLines(newLines, track.id)}
+                    onRemove={() => removeTrack(track.id)} // Übergebe die Funktion zum Entfernen
                 />
             ))}
         </div>
