@@ -1,6 +1,6 @@
 // import React, { useState } from 'react';
 //
-// const ToggleButton = ({ onToggle }) => {
+// const StartPauseToggle = ({ onToggle }) => {
 //     const [isPlaying, setIsPlaying] = useState(false);
 //
 //     const handleClick = () => {
@@ -15,13 +15,13 @@
 //     );
 // };
 //
-// export default ToggleButton;
+// export default StartPauseToggle;
 
 
 
 import React, { useState } from 'react';
 
-const ToggleButton = ({ onToggle }) => {
+const StartPauseToggle = ({ onToggle }) => {
     const [isPlaying, setIsPlaying] = useState(false);
 
     const handleClick = () => {
@@ -36,4 +36,4 @@ const ToggleButton = ({ onToggle }) => {
     );
 };
 
-export default ToggleButton;
+export default StartPauseToggle;
