@@ -31,3 +31,14 @@ export const updateDrawing = async (name, lines) => {
         throw error;
     }
 };
+
+export const getTracks = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/tracks`);
+        console.log('Tracks response:', response.data);  // Debug-Ausgabe
+        return response.data;
+    } catch (error) {
+        console.error('Error retrieving tracks:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};

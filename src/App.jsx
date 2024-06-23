@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import MinimalDrawingCanvas from './components/MinimalDrawingCanvas';
 import ControlPanel from './components/ControlPanel';
+import TrackList from './components/TrackList';
 import { saveDrawing, loadDrawing, updateDrawing } from './backendApi/api';
 
 const App = () => {
@@ -35,21 +36,18 @@ const App = () => {
         }
     };
 
-    const handleLoad = async () => {
-        const name = prompt('Enter the name of the drawing to load:');
-        if (name) {
-            try {
-                const drawing = await loadDrawing(name);
-                if (drawing) {
-                    setLines(drawing.lines);
-                    setTrackName(drawing.name);
-                    setOriginalTrackName(drawing.name);
-                } else {
-                    alert('Drawing not found!');
-                }
-            } catch (error) {
-                alert('Error loading drawing.');
+    const handleLoad = async (name) => {
+        try {
+            const drawing = await loadDrawing(name);
+            if (drawing) {
+                setLines(drawing.lines);
+                setTrackName(drawing.name);
+                setOriginalTrackName(drawing.name);
+            } else {
+                alert('Drawing not found!');
             }
+        } catch (error) {
+            alert('Error loading drawing.');
         }
     };
 
@@ -69,9 +67,9 @@ const App = () => {
             <MinimalDrawingCanvas canvasRef={canvasRef} lines={lines} setLines={setLines} color={color} isErasing={isErasing} />
             <div>
                 <button onClick={handleSave}>Save Drawing</button>
-                <button onClick={handleLoad}>Load Drawing</button>
                 <button onClick={clearDrawing}>Clear Drawing</button>
             </div>
+            <TrackList onLoadTrack={handleLoad} />
         </div>
     );
 };
