@@ -1,38 +1,14 @@
-// import React, { useState, useRef } from 'react';
-// import MinimalDrawingCanvas from './components/MinimalDrawingCanvas';
-// import ControlPanel from './components/ControlPanel';
-//
-// const App = () => {
-//     const [lines, setLines] = useState([]);
-//     const [color, setColor] = useState('red');
-//     const [isErasing, setIsErasing] = useState(false); // Zustand für Erase-Modus
-//     const canvasRef = useRef(null);
-//
-//     const toggleEraseMode = () => {
-//         setIsErasing(!isErasing);
-//     };
-//
-//     return (
-//         <div>
-//             <ControlPanel setColor={setColor} toggleEraseMode={toggleEraseMode} isErasing={isErasing} />
-//             <MinimalDrawingCanvas canvasRef={canvasRef} lines={lines} setLines={setLines} color={color} isErasing={isErasing} />
-//         </div>
-//     );
-// };
-//
-// export default App;
-
-
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import MinimalDrawingCanvas from './components/MinimalDrawingCanvas';
 import ControlPanel from './components/ControlPanel';
-import { saveDrawing, loadDrawing } from './backendApi/api';
+import { saveDrawing, loadDrawing, updateDrawing } from './backendApi/api';
 
 const App = () => {
     const [lines, setLines] = useState({ red: [], yellow: [], green: [] });
     const [color, setColor] = useState('red');
     const [isErasing, setIsErasing] = useState(false);
+    const [trackName, setTrackName] = useState('');
+    const [originalTrackName, setOriginalTrackName] = useState('');
     const canvasRef = useRef(null);
 
     const toggleEraseMode = () => {
@@ -40,14 +16,22 @@ const App = () => {
     };
 
     const handleSave = async () => {
-        const name = prompt('Enter a name for the drawing:');
-        if (name) {
-            try {
-                await saveDrawing(name, lines);
+        if (!trackName) {
+            alert('Please enter a name for the drawing.');
+            return;
+        }
+
+        try {
+            if (trackName === originalTrackName) {
+                await updateDrawing(trackName, lines);
+                alert('Drawing updated!');
+            } else {
+                await saveDrawing(trackName, lines);
+                setOriginalTrackName(trackName);
                 alert('Drawing saved!');
-            } catch (error) {
-                alert('Error saving drawing.');
             }
+        } catch (error) {
+            alert('Error saving drawing.');
         }
     };
 
@@ -58,6 +42,8 @@ const App = () => {
                 const drawing = await loadDrawing(name);
                 if (drawing) {
                     setLines(drawing.lines);
+                    setTrackName(drawing.name);
+                    setOriginalTrackName(drawing.name);
                 } else {
                     alert('Drawing not found!');
                 }
@@ -74,6 +60,12 @@ const App = () => {
     return (
         <div>
             <ControlPanel setColor={setColor} toggleEraseMode={toggleEraseMode} isErasing={isErasing} />
+            <input
+                type="text"
+                value={trackName}
+                onChange={(e) => setTrackName(e.target.value)}
+                placeholder="Enter track name"
+            />
             <MinimalDrawingCanvas canvasRef={canvasRef} lines={lines} setLines={setLines} color={color} isErasing={isErasing} />
             <div>
                 <button onClick={handleSave}>Save Drawing</button>

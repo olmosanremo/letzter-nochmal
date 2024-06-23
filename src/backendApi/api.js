@@ -7,7 +7,7 @@ export const saveDrawing = async (name, lines) => {
         const response = await axios.post(`${API_URL}/save`, { name, lines });
         return response.data;
     } catch (error) {
-        console.error('Error saving drawing:', error);
+        console.error('Error saving drawing:', error.response ? error.response.data : error.message);
         throw error;
     }
 };
@@ -17,7 +17,17 @@ export const loadDrawing = async (name) => {
         const response = await axios.get(`${API_URL}/load/${name}`);
         return response.data;
     } catch (error) {
-        console.error('Error loading drawing:', error);
+        console.error('Error loading drawing:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
+export const updateDrawing = async (name, lines) => {
+    try {
+        const response = await axios.patch(`${API_URL}/update`, { name, lines });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating drawing:', error.response ? error.response.data : error.message);
         throw error;
     }
 };
