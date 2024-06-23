@@ -27,6 +27,7 @@
 import React, { useState, useRef } from 'react';
 import MinimalDrawingCanvas from './components/MinimalDrawingCanvas';
 import ControlPanel from './components/ControlPanel';
+import { saveDrawing, loadDrawing } from './backendApi/api';
 
 const App = () => {
     const [lines, setLines] = useState({ red: [], yellow: [], green: [] });
@@ -38,24 +39,30 @@ const App = () => {
         setIsErasing(!isErasing);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const name = prompt('Enter a name for the drawing:');
         if (name) {
-            const drawing = { name, lines };
-            console.log('Saving drawing:', drawing);
-            localStorage.setItem(name, JSON.stringify(drawing));
-            alert('Drawing saved!');
+            try {
+                await saveDrawing(name, lines);
+                alert('Drawing saved!');
+            } catch (error) {
+                alert('Error saving drawing.');
+            }
         }
     };
 
-    const handleLoad = () => {
+    const handleLoad = async () => {
         const name = prompt('Enter the name of the drawing to load:');
         if (name) {
-            const drawing = JSON.parse(localStorage.getItem(name));
-            if (drawing) {
-                setLines(drawing.lines);
-            } else {
-                alert('Drawing not found!');
+            try {
+                const drawing = await loadDrawing(name);
+                if (drawing) {
+                    setLines(drawing.lines);
+                } else {
+                    alert('Drawing not found!');
+                }
+            } catch (error) {
+                alert('Error loading drawing.');
             }
         }
     };
