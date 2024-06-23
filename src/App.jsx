@@ -1,11 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
+import './components/componentsStyle/SplashScreen.css'; // Füge das CSS für den Splashscreen hinzu
 import DrawingCanvas from './components/DrawingCanvas';
 import ModeDropdown from './components/ModeDropdown';
 import ToggleButton from './components/ToggleButton';
 import ControlPanel from './components/ControlPanel';
 import axios from 'axios';
 import * as Tone from 'tone';
+import SplashScreen from './components/SplashScreen'; // Importiere die SplashScreen-Komponente
 
 function App() {
     const [mode, setMode] = useState('write');
@@ -14,6 +16,19 @@ function App() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [tracks, setTracks] = useState([{ id: 1, ref: useRef(null), lines: [] }]);
+    const [loading, setLoading] = useState(true); // Zustand für den Splashscreen
+    const [fade, setFade] = useState(false); // Zustand für die Fade-Out-Animation
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setFade(true); // Fade-Out Animation starten
+            setTimeout(() => {
+                setLoading(false);
+            }, 3000); // Der Splashscreen wird nach 3 Sekunden verschwinden
+        }, 3000);
+
+        return () => clearTimeout(timer); // Cleanup des Timers
+    }, []);
 
     const handleColorSelect = (selectedColor) => {
         setColor(selectedColor);
@@ -127,30 +142,38 @@ function App() {
 
     return (
         <div className="App">
-            <ControlPanel
-                colors={['red', 'green', 'blue', 'orange', 'purple', 'yellow']}
-                selectedColor={color}
-                onSelectColor={handleColorSelect}
-                isPlaying={isPlaying}
-                isPaused={isPaused}
-                playPauseSound={playPauseSound}
-                stopSound={stopSound}
-                addTrack={addTrack}
-            />
-            <ModeDropdown selectedMode={selectedMode} onSelectMode={handleModeSelect} />
-            <ToggleButton onToggle={(isPlaying) => console.log(isPlaying ? 'Playing' : 'Paused')} />
-            {tracks.map(track => (
-                <DrawingCanvas
-                    key={track.id}
-                    mode={mode}
-                    color={color} // Verwende die ausgewählte Farbe
-                    onSave={(points) => saveDrawing(points, track.id)}
-                    canvasRef={track.ref}
-                    lines={track.lines}
-                    setLines={(newLines) => updateLines(newLines, track.id)}
-                    onRemove={() => removeTrack(track.id)} // Übergebe die Funktion zum Entfernen
-                />
-            ))}
+            {loading ? (
+                <div className={`splash-screen ${fade ? 'fade-out' : ''}`}>
+                    <SplashScreen />
+                </div>
+            ) : (
+                <>
+                    <ControlPanel
+                        colors={['red', 'green', 'blue', 'orange', 'purple', 'yellow']}
+                        selectedColor={color}
+                        onSelectColor={handleColorSelect}
+                        isPlaying={isPlaying}
+                        isPaused={isPaused}
+                        playPauseSound={playPauseSound}
+                        stopSound={stopSound}
+                        addTrack={addTrack}
+                    />
+                    <ModeDropdown selectedMode={selectedMode} onSelectMode={handleModeSelect} />
+                    <ToggleButton onToggle={(isPlaying) => console.log(isPlaying ? 'Playing' : 'Paused')} />
+                    {tracks.map(track => (
+                        <DrawingCanvas
+                            key={track.id}
+                            mode={mode}
+                            color={color} // Verwende die ausgewählte Farbe
+                            onSave={(points) => saveDrawing(points, track.id)}
+                            canvasRef={track.ref}
+                            lines={track.lines}
+                            setLines={(newLines) => updateLines(newLines, track.id)}
+                            onRemove={() => removeTrack(track.id)} // Übergebe die Funktion zum Entfernen
+                        />
+                    ))}
+                </>
+            )}
         </div>
     );
 }
